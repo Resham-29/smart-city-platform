@@ -75,8 +75,8 @@ npm install
 Create a .env file in the backend directory and add the following, replacing the placeholder with your MongoDB connection string:
 
 PORT=5001
-MONGODB_URI="your_mongodb_connection_string"
-JWT_SECRET="a_very_secret_key_for_jwt"
+MONGODB_URI="mongodb+srv://smartcityuser:iIQnktnaklTGRU7n@cluster0.gdpg8f2.mongodb.net/smartcity?retryWrites=true&w=majority&appName=Cluster0"
+JWT_SECRET=my_super_secret_key_12345R
 CLIENT_URL="http://localhost:5173"
 
 Setup the Frontend
