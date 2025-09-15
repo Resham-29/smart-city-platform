@@ -1,0 +1,61 @@
+Dependencies
+/node_modules
+/frontend/node_modules
+/backend/node_modules
+
+Vite build output
+/frontend/dist
+
+Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+Environment variables - VERY IMPORTANT
+.env
+.env.local
+/backend/.env
+/frontend/.env
+
+IDE and OS files
+.idea
+.vscode
+*.suo
+.ntvs
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+
+### **Step 4: Add and Commit Your Files**
+
+Now we'll save a snapshot of your project.
+
+1.  **Add all files** (that are not being ignored) to the staging area.
+    ```bash
+    git add .
+    ```
+2.  **Commit the files** with a descriptive message. This creates a save point.
+    ```bash
+    git commit -m "feat: Initial commit of full-stack smart city dashboard"
+    ```
+
+### **Step 5: Push Your Code to GitHub**
+
+Finally, let's upload your project.
+
+1.  Go back to the GitHub repository page you created in Step 1. Copy the commands under the section that says **"...or push an existing repository from the command line"**.
+2.  Paste those commands into your terminal and run them one by one. **Remember to replace `YourUsername` with your actual GitHub username.**
+
+    ```bash
+    # This connects your local folder to the repository on GitHub.com
+    git remote add origin https://github.com/YourUsername/smart-city-platform.git
+
+    # This renames your local branch to "main", the new standard
+    git branch -M main
+
+    # This sends your committed files up to GitHub
+    git push -u origin main
+
