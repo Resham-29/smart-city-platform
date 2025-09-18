@@ -7,9 +7,6 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 require('dotenv').config();
 
-// const notificationRoutes = require('./routes/notifications.js');
-
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -37,13 +34,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
+// == THE FIX IS HERE ==
+// Increased the max limit to be more lenient for development.
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500 // limit each IP to 500 requests per windowMs (increased from 100)
 });
 app.use('/api/', limiter);
-
-// app.use('/api/notifications', notificationRoutes);
 
 
 // Database Connection
@@ -58,7 +55,6 @@ const connectDB = async () => {
 };
 
 // ... (The rest of your server.js file remains exactly the same) ...
-// Schemas, Models, Other Routes, etc.
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -80,7 +76,6 @@ const userSchema = new mongoose.Schema({
 // City Data Schema for real-time monitoring
 const cityDataSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
-  // == NEW FIELD FOR MAP CENTER ==
   location: {
     lat: Number,
     lng: Number
@@ -119,7 +114,6 @@ const cityDataSchema = new mongoose.Schema({
     status: String,
     lastCollection: Date,
     nextCollection: Date,
-    // == NEW FIELD FOR MAP MARKERS ==
     coordinates: {
       lat: Number,
       lng: Number
@@ -162,7 +156,6 @@ const alertSchema = new mongoose.Schema({
     enum: ['Traffic', 'Energy', 'Environment', 'Water', 'Waste', 'Security', 'Emergency']
   },
   message: { type: String, required: true },
-  // == UPDATED FIELD FOR MAP MARKERS ==
   location: {
     description: String,
     lat: Number,
@@ -487,9 +480,6 @@ app.post('/api/alerts', authenticateToken, checkPermission('alerts'), async (req
   try {
     const alert = new Alert(req.body);
     await alert.save();
-
-    // Here you could add real-time notification logic (WebSocket, push notifications, etc.)
-
     res.status(201).json(alert);
   } catch (error) {
     console.error('Alert creation error:', error);
@@ -575,11 +565,7 @@ app.post('/api/emergencies', authenticateToken, checkPermission('emergency'), as
       ...req.body,
       reportedBy: req.user.id
     });
-
     await emergency.save();
-
-    // Here you could trigger emergency protocols, notifications, etc.
-
     res.status(201).json(emergency);
   } catch (error) {
     console.error('Emergency creation error:', error);
@@ -736,8 +722,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-// This "catch-all" handler must be the VERY LAST middleware.
-// It catches any request that didn't match a route above.
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Route not found' });
 });
@@ -795,7 +779,6 @@ const startServer = async () => {
       console.log('✅ Demo user created: demo/demo123');
     }
 
-    // == CREATE A MOCK ALERT WITH LOCATION ON STARTUP ==
     const alertExists = await Alert.findOne({ message: 'Major congestion on Marine Drive' });
     if (!alertExists) {
       const cityCenter = { lat: 19.0760, lng: 72.8777 };
