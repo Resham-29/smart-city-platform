@@ -17,95 +17,20 @@ const api = axios.create({
 
 // Auth Context
 const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 // API Service
 export const apiService = {
-  // Auth endpoints
-  login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
-  },
-
-  register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
-  },
-
-  // City data endpoints
-  getCityData: async () => {
-    const response = await api.get('/city-data');
-    return response.data;
-  },
-
-  getCityDataHistory: async (hours = 24) => {
-    const response = await api.get(`/city-data/history?hours=${hours}`);
-    return response.data;
-  },
-
-  // Alerts endpoints
-  getAlerts: async (status = 'active', limit = 50) => {
-    const response = await api.get(`/alerts?status=${status}&limit=${limit}`);
-    return response.data;
-  },
-
-  createAlert: async (alertData) => {
-    const response = await api.post('/alerts', alertData);
-    return response.data;
-  },
-
-  updateAlert: async (id, updateData) => {
-    const response = await api.put(`/alerts/${id}`, updateData);
-    return response.data;
-  },
-
-  // Citizen requests endpoints
-  getCitizenRequests: async () => {
-    const response = await api.get('/citizen-requests');
-    return response.data;
-  },
-
-  createCitizenRequest: async (requestData) => {
-    const response = await api.post('/citizen-requests', requestData);
-    return response.data;
-  },
-
-  // Emergency endpoints
-  getEmergencies: async () => {
-    const response = await api.get('/emergencies');
-    return response.data;
-  },
-
-  createEmergency: async (emergencyData) => {
-    const response = await api.post('/emergencies', emergencyData);
-    return response.data;
-  },
-
-  // Analytics endpoints
-  getAnalytics: async (startDate, endDate) => {
-    const params = new URLSearchParams();
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-
-    const response = await api.get(`/analytics?${params}`);
-    return response.data;
-  },
-
-  // System health
-  getSystemHealth: async () => {
-    const response = await api.get('/health');
-    return response.data;
-  }
+    login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
+    register: (userData) => api.post('/auth/register', userData).then(res => res.data),
+    getCityData: () => api.get('/city-data').then(res => res.data),
+    getCityDataHistory: (hours = 24) => api.get(`/city-data/history?hours=${hours}`).then(res => res.data),
+    getAlerts: (status = 'active', limit = 50) => api.get(`/alerts?status=${status}&limit=${limit}`).then(res => res.data),
+    updateAlert: (id, updateData) => api.put(`/alerts/${id}`, updateData).then(res => res.data),
+    getCitizenRequests: () => api.get('/citizen-requests').then(res => res.data),
 };
 
-// Request interceptor to add auth token
+// Axios Interceptors to handle auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
@@ -114,380 +39,185 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
-      window.location.reload();
+      // No reload here, let the state handle it
     }
     return Promise.reject(error);
   }
 );
+
 
 // Auth Provider Component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const initAuth = () => {
-      const token = localStorage.getItem('authToken');
-      const savedUser = localStorage.getItem('currentUser');
-
-      if (token && savedUser) {
-        try {
-          const parsedUser = JSON.parse(savedUser);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error('Error parsing saved user:', error);
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('currentUser');
-        }
+    const token = localStorage.getItem('authToken');
+    const savedUser = localStorage.getItem('currentUser');
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Failed to parse user from localStorage", error);
+        localStorage.clear();
       }
-      setLoading(false);
-    };
-
-    initAuth();
+    }
+    setLoading(false);
   }, []);
 
   const login = async (credentials) => {
     try {
-      setLoading(true);
       const response = await apiService.login(credentials);
-
       if (response.success) {
-        const { token, user: userData } = response;
-
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-
-        setUser(userData);
-        setIsAuthenticated(true);
-
-        return { success: true, user: userData };
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('currentUser', JSON.stringify(response.user));
+        setUser(response.user);
+        return { success: true };
       }
+      return { success: false, error: 'Login failed' };
     } catch (error) {
-      console.error('Login error:', error);
-      return {
-        success: false,
-        error: error.response?.data?.error || 'Login failed'
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      setLoading(true);
-      const response = await apiService.register(userData);
-
-      if (response.success) {
-        return { success: true, message: response.message };
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      return {
-        success: false,
-        error: error.response?.data?.error || 'Registration failed'
-      };
-    } finally {
-      setLoading(false);
+      return { success: false, error: error.response?.data?.error || 'Login failed' };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
+    localStorage.clear();
     setUser(null);
-    setIsAuthenticated(false);
   };
 
-  const value = {
-    user,
-    isAuthenticated,
-    loading,
-    login,
-    register,
-    logout
-  };
+  const value = { user, loading, login, logout, isAuthenticated: !!user };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-// Create Data Context
-const DataContext = React.createContext();
+// Data Provider Component
+const DataContext = createContext();
+export const useData = () => useContext(DataContext);
 
-export const useData = () => {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-};
-
-// Data Provider for city data management
 const DataProvider = ({ children }) => {
   const [cityData, setCityData] = useState({});
+  const [historicalData, setHistoricalData] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [citizenRequests, setCitizenRequests] = useState([]);
-  const [emergencies, setEmergencies] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Fetch city data
-  const fetchCityData = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getCityData();
-      setCityData(data);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch city data');
-      console.error('Error fetching city data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch alerts
-  const fetchAlerts = async () => {
-    try {
-      const activeAlerts = await apiService.getAlerts('active');
-      const resolvedAlerts = await apiService.getAlerts('resolved', 10);
-      setAlerts([...activeAlerts, ...resolvedAlerts]);
-    } catch (err) {
-      console.error('Failed to fetch alerts:', err);
-    }
-  };
-
-  // Fetch citizen requests
-  const fetchCitizenRequests = async () => {
-    try {
-      const data = await apiService.getCitizenRequests();
-      setCitizenRequests(data);
-    } catch (err) {
-      console.error('Failed to fetch citizen requests:', err);
-    }
-  };
-
-  // Fetch emergencies
-  const fetchEmergencies = async () => {
-    try {
-      const data = await apiService.getEmergencies();
-      setEmergencies(data);
-    } catch (err) {
-      console.error('Failed to fetch emergencies:', err);
-    }
-  };
-
-  // Create alert
-  const createAlert = async (alertData) => {
-    try {
-      const newAlert = await apiService.createAlert(alertData);
-      setAlerts(prev => [newAlert, ...prev]);
-      return { success: true, alert: newAlert };
-    } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.error || 'Failed to create alert'
-      };
-    }
-  };
-
-  // Update alert
-  const updateAlert = async (id, updateData) => {
-    try {
-      const updatedAlert = await apiService.updateAlert(id, updateData);
-      setAlerts(prev => prev.map(alert =>
-        alert._id === id ? updatedAlert : alert
-      ));
-      return { success: true, alert: updatedAlert };
-    } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.error || 'Failed to update alert'
-      };
-    }
-  };
-
-  // Create citizen request
-  const createCitizenRequest = async (requestData) => {
-    try {
-      const newRequest = await apiService.createCitizenRequest(requestData);
-      setCitizenRequests(prev => [newRequest, ...prev]);
-      return { success: true, request: newRequest };
-    } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.error || 'Failed to create request'
-      };
-    }
-  };
-
-  // Create emergency
-  const createEmergency = async (emergencyData) => {
-    try {
-      const newEmergency = await apiService.createEmergency(emergencyData);
-      setEmergencies(prev => [newEmergency, ...prev]);
-      return { success: true, emergency: newEmergency };
-    } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.error || 'Failed to create emergency'
-      };
-    }
-  };
-
-  // Auto-refresh data every 30 seconds when authenticated
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [city, history, activeAlerts, resolved, requests] = await Promise.all([
+          apiService.getCityData(),
+          apiService.getCityDataHistory(),
+          apiService.getAlerts('active'),
+          apiService.getAlerts('resolved', 10),
+          apiService.getCitizenRequests(),
+        ]);
+        setCityData(city);
+        setHistoricalData(history);
+        setAlerts([...activeAlerts, ...resolved]);
+        setCitizenRequests(requests);
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || 'Failed to fetch city data';
+        setError(errorMessage);
+        if (errorMessage === 'Invalid or expired token') {
+            logout(); // If token is bad, log the user out
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchCityData();
-    fetchAlerts();
-    fetchCitizenRequests();
-    fetchEmergencies();
-
-    const interval = setInterval(() => {
-      fetchCityData();
-      fetchAlerts();
-    }, 30000);
-
-    return () => clearInterval(interval);
+    if (isAuthenticated) {
+      fetchData();
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
+    }
   }, [isAuthenticated]);
 
-  const value = {
-    cityData,
-    alerts,
-    citizenRequests,
-    emergencies,
-    loading,
-    error,
-    fetchCityData,
-    fetchAlerts,
-    fetchCitizenRequests,
-    fetchEmergencies,
-    createAlert,
-    updateAlert,
-    createCitizenRequest,
-    createEmergency
+  const updateAlert = async (id, updateData) => {
+     try {
+      const updated = await apiService.updateAlert(id, updateData);
+      setAlerts(prev => prev.map(a => a._id === id ? updated : a));
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: 'Failed to update alert' };
+    }
   };
+  
+  const value = { cityData, historicalData, alerts, citizenRequests, loading, error, updateAlert };
 
-  return (
-    <DataContext.Provider value={value}>
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
 
-// Enhanced Smart City Platform with API integration
-const EnhancedSmartCityPlatform = () => {
-  const { user, isAuthenticated, loading: authLoading, login, register, logout } = useAuth();
-  const {
-    cityData,
-    alerts,
-    citizenRequests,
-    loading: dataLoading,
-    error: dataError,
-    createAlert,
-    updateAlert,
-    createCitizenRequest,
-    createEmergency
-  } = useData();
+// Main App component now just wraps the providers
+function App() {
+  return (
+    <AuthProvider>
+      <Main />
+    </AuthProvider>
+  );
+}
+
+// A new component to handle the main logic AFTER authentication is checked
+function Main() {
+  const { user, loading: authLoading, login, logout } = useAuth();
 
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Smart City Platform...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <AuthComponent 
-        onLogin={login}
-        onRegister={register}
-      />
-    );
+  // If there's no user, show the login form
+  if (!user) {
+    return <AuthComponent onLogin={login} />;
   }
 
+  // If there IS a user, wrap the dashboard in the data provider
   return (
-    <Dashboard
-      user={user}
-      cityData={cityData}
-      alerts={alerts}
-      citizenRequests={citizenRequests}
-      loading={dataLoading}
-      error={dataError}
-      onCreateAlert={createAlert}
-      onUpdateAlert={updateAlert}
-      onCreateCitizenRequest={createCitizenRequest}
-      onCreateEmergency={createEmergency}
-      onLogout={logout}CitizenRequest={createCitizenRequest}
-      
-    />
+    <DataProvider>
+      <DashboardContent onLogout={logout} />
+    </DataProvider>
   );
-};
+}
 
-// Main App Component
-function App() {
-  const [systemHealth, setSystemHealth] = useState(null);
-
-  useEffect(() => {
-    // Check system health on app start
-    const checkSystemHealth = async () => {
-      try {
-        const health = await apiService.getSystemHealth();
-        setSystemHealth(health);
-      } catch (error) {
-        console.error('System health check failed:', error);
-        setSystemHealth({ status: 'ERROR', message: 'API not available' });
-      }
-    };
-
-    checkSystemHealth();
-  }, []);
-
+// A new component that can safely use both Auth and Data contexts
+function DashboardContent({ onLogout }) {
+  const { user } = useAuth();
+  const { cityData, historicalData, alerts, citizenRequests, loading: dataLoading, error, updateAlert } = useData();
+  
   return (
-    <div className="App">
-      <AuthProvider>
-        <DataProvider>
-          <EnhancedSmartCityPlatform />
-
-          {/* System Status Indicator */}
-          {systemHealth && (
-            <div className={`fixed bottom-4 right-4 px-3 py-1 rounded-full text-xs font-medium z-50 ${
-              systemHealth.status === 'OK'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-            }`}>
-              API: {systemHealth.status}
-            </div>
-          )}
-        </DataProvider>
-      </AuthProvider>
-    </div>
+      <Dashboard
+        user={user}
+        cityData={cityData}
+        historicalData={historicalData}
+        alerts={alerts}
+        citizenRequests={citizenRequests}
+        loading={dataLoading}
+        error={error}
+        onUpdateAlert={updateAlert}
+        onLogout={onLogout}
+      />
   );
 }
 
 export default App;
+
