@@ -18,7 +18,8 @@ import {
   ChevronRight,
   BarChart3,
   LineChart,
-  PieChart
+  PieChart,
+  Map 
 } from 'lucide-react';
 
 // Import all chart components
@@ -31,6 +32,7 @@ import {
   InfrastructureChart,
   OverviewChart
 } from './enhancedCharts';
+import MapComponent from './MapComponent';
 
 const MetricCard = ({ title, value, unit, icon: Icon, trend, color, subtitle }) => {
   const getTrendIcon = () => {
@@ -194,6 +196,7 @@ const Sidebar = ({ isOpen, activeTab, setActiveTab }) => {
   const navigation = [
     { id: 'overview', name: 'Overview', icon: Activity },
     { id: 'analytics', name: 'Analytics', icon: BarChart3 },
+    { id: 'map', name: 'Live Map', icon: Map },
     { id: 'traffic', name: 'Traffic', icon: Car },
     { id: 'energy', name: 'Energy', icon: Zap },
     { id: 'environment', name: 'Environment', icon: Wind },
@@ -409,7 +412,7 @@ const AlertsTab = ({ alerts, onUpdateAlert }) => {
 
 const Dashboard = ({ 
   user, 
-  cityData, 
+  cityData,
   alerts, 
   citizenRequests, 
   loading, 
@@ -469,6 +472,12 @@ const Dashboard = ({
         return <OverviewTab cityData={cityData} historicalData={historicalData} />;
       case 'analytics':
         return <AnalyticsTab historicalData={historicalData} />;
+        case 'map':
+        return <MapComponent
+                  alerts={alerts}
+                  citizenRequests={citizenRequests}
+                  cityData={cityData}
+                />;
       case 'alerts':
         return <AlertsTab alerts={alerts} onUpdateAlert={onUpdateAlert} />;
       case 'traffic':

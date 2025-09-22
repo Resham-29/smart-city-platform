@@ -19,7 +19,9 @@
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
     "mongoose": "^8.18.1",
+    "react-leaflet": "^4.2.1",
     "sendgrid": "^5.2.3",
     "twilio": "^5.9.0"
   }
