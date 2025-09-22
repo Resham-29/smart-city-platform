@@ -22,7 +22,7 @@ import {
   Map 
 } from 'lucide-react';
 
-// Import all chart components
+// chart components
 import {
   TrafficChart,
   EnergyChart,
@@ -34,7 +34,7 @@ import {
 } from './enhancedCharts';
 import MapComponent from './MapComponent';
 
-// --- MetricCard, AlertCard, DashboardHeader, Sidebar components are unchanged ---
+// --- MetricCard, AlertCard, DashboardHeader, Sidebar ---
 const MetricCard = ({ title, value, unit, icon: Icon, trend, color, subtitle }) => {
   const getTrendIcon = () => {
     if (trend > 0) return <TrendingUp className="w-4 h-4 text-green-500" />;
@@ -252,7 +252,7 @@ const Sidebar = ({ isOpen, activeTab, setActiveTab }) => {
     </>
   );
 };
-// --- OverviewTab and AnalyticsTab are unchanged ---
+// --- OverviewTab and AnalyticsTab ---
 const OverviewTab = ({ cityData, historicalData }) => {
   if (!cityData.timestamp) {
     return (
@@ -357,10 +357,9 @@ const AnalyticsTab = ({ historicalData }) => {
 };
 
 
-// --- FIX IS HERE in AlertsTab ---
+
 const AlertsTab = ({ alerts, onUpdateAlert }) => {
-  // FIX 1: Add a guard clause to prevent crashes if 'alerts' is not an array.
-  // This will show a clean message instead of a blank page.
+  
   if (!Array.isArray(alerts) || alerts.length === 0) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">

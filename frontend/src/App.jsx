@@ -89,7 +89,7 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  // FIX 1: Add the register function to handle the API call
+  
   const register = async (userData) => {
     try {
       const response = await apiService.register(userData);
@@ -107,7 +107,7 @@ const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // FIX 2: Add the new 'register' function to the context value
+  
   const value = { user, loading, login, logout, register, isAuthenticated: !!user };
 
   return (
@@ -117,7 +117,7 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// Data Provider Component (No changes needed here)
+// Data Provider Component 
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
@@ -162,8 +162,7 @@ const DataProvider = ({ children }) => {
       const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, logout]); // Added logout to dependency array
-
+  }, [isAuthenticated, logout]); 
   const updateAlert = async (id, updateData) => {
      try {
       const updated = await apiService.updateAlert(id, updateData);
@@ -188,9 +187,9 @@ function App() {
   );
 }
 
-// A new component to handle the main logic AFTER authentication is checked
+//  component to handle the main logic AFTER authentication is checked
 function Main() {
-  // FIX 3: Get the 'register' function from the useAuth hook
+  
   const { user, loading: authLoading, login, logout, register } = useAuth();
 
   if (authLoading) {
@@ -215,7 +214,7 @@ function Main() {
   );
 }
 
-// A new component that can safely use both Auth and Data contexts
+// component that can safely use both Auth and Data contexts
 function DashboardContent({ onLogout }) {
   const { user } = useAuth();
   const { cityData, historicalData, alerts, citizenRequests, loading: dataLoading, error, updateAlert } = useData();

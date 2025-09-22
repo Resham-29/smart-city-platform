@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { AlertTriangle, MessageSquare, Trash2, MapPin } from 'lucide-react';
 
-// Fix for default icon issue with webpack
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -23,11 +23,11 @@ const createIcon = (color) => {
 };
 
 const icons = {
-  alert: createIcon('#EF4444'), // Red
-  request: createIcon('#3B82F6'), // Blue
-  waste_ok: createIcon('#22C55E'), // Green
-  waste_warning: createIcon('#F59E0B'), // Amber
-  waste_full: createIcon('#DC2626'), // Red
+  alert: createIcon('#EF4444'), 
+  request: createIcon('#3B82F6'), 
+  waste_ok: createIcon('#22C55E'), 
+  waste_warning: createIcon('#F59E0B'), 
+  waste_full: createIcon('#DC2626'), 
 };
 
 const MapComponent = ({ alerts, citizenRequests, cityData }) => {
