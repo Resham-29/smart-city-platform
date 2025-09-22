@@ -34,6 +34,7 @@ import {
 } from './enhancedCharts';
 import MapComponent from './MapComponent';
 
+// --- MetricCard, AlertCard, DashboardHeader, Sidebar components are unchanged ---
 const MetricCard = ({ title, value, unit, icon: Icon, trend, color, subtitle }) => {
   const getTrendIcon = () => {
     if (trend > 0) return <TrendingUp className="w-4 h-4 text-green-500" />;
@@ -118,7 +119,7 @@ const AlertCard = ({ alert, onUpdate }) => {
                   <span>•</span>
                   <span className="flex items-center space-x-1">
                     <MapPin className="w-3 h-3" />
-                    <span>{alert.location}</span>
+                    <span>{alert.location.description || 'N/A'}</span>
                   </span>
                 </>
               )}
@@ -251,8 +252,7 @@ const Sidebar = ({ isOpen, activeTab, setActiveTab }) => {
     </>
   );
 };
-
-// Enhanced Overview Tab with Graphs
+// --- OverviewTab and AnalyticsTab are unchanged ---
 const OverviewTab = ({ cityData, historicalData }) => {
   if (!cityData.timestamp) {
     return (
@@ -320,7 +320,6 @@ const OverviewTab = ({ cityData, historicalData }) => {
   );
 };
 
-// New Analytics Tab with Multiple Charts
 const AnalyticsTab = ({ historicalData }) => {
   if (!historicalData || historicalData.length === 0) {
     return (
@@ -357,9 +356,24 @@ const AnalyticsTab = ({ historicalData }) => {
   );
 };
 
+
+// --- FIX IS HERE in AlertsTab ---
 const AlertsTab = ({ alerts, onUpdateAlert }) => {
-  const activeAlerts = alerts.filter(alert => alert.status === 'active');
-  const resolvedAlerts = alerts.filter(alert => alert.status === 'resolved');
+  // FIX 1: Add a guard clause to prevent crashes if 'alerts' is not an array.
+  // This will show a clean message instead of a blank page.
+  if (!Array.isArray(alerts) || alerts.length === 0) {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+        <Bell className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No Alerts</h3>
+        <p className="text-gray-500">There are no active or recently resolved alerts to display.</p>
+      </div>
+    );
+  }
+
+  // FIX 2: Make the filter more robust by checking if 'alert' exists before accessing its properties.
+  const activeAlerts = alerts.filter(alert => alert && alert.status === 'active');
+  const resolvedAlerts = alerts.filter(alert => alert && alert.status === 'resolved');
 
   return (
     <div className="space-y-6">
@@ -412,7 +426,8 @@ const AlertsTab = ({ alerts, onUpdateAlert }) => {
 
 const Dashboard = ({ 
   user, 
-  cityData,
+  cityData, 
+  historicalData, 
   alerts, 
   citizenRequests, 
   loading, 
@@ -422,49 +437,6 @@ const Dashboard = ({
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [historicalData, setHistoricalData] = useState([]);
-
-  // Mock historical data generation (replace with real API call)
-  useEffect(() => {
-    const generateHistoricalData = () => {
-      const data = [];
-      const now = new Date();
-      
-      for (let i = 23; i >= 0; i--) {
-        const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000);
-        data.push({
-          timestamp: timestamp.toISOString(),
-          traffic: {
-            congestion: 30 + Math.random() * 40 + Math.sin(i / 4) * 10,
-            avgSpeed: 35 + Math.random() * 30 + Math.cos(i / 3) * 5,
-          },
-          energy: {
-            totalConsumption: 400 + Math.random() * 200 + Math.sin(i / 6) * 50,
-            renewableGeneration: 150 + Math.random() * 100 + Math.cos(i / 4) * 30,
-            solarOutput: 60 + Math.random() * 40 + Math.max(0, Math.sin(i / 12) * 20),
-            windOutput: 90 + Math.random() * 60 + Math.sin(i / 8) * 20,
-            gridEfficiency: 85 + Math.random() * 10,
-          },
-          airQuality: {
-            aqi: 50 + Math.random() * 50 + Math.sin(i / 10) * 15,
-            pm25: 20 + Math.random() * 30,
-            pm10: 30 + Math.random() * 40,
-            ozone: 70 + Math.random() * 50,
-          },
-          water: {
-            quality: 90 + Math.random() * 8,
-            pressure: 70 + Math.random() * 20,
-            consumption: 2 + Math.random() * 1,
-          }
-        });
-      }
-      setHistoricalData(data);
-    };
-
-    generateHistoricalData();
-    const interval = setInterval(generateHistoricalData, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -472,7 +444,7 @@ const Dashboard = ({
         return <OverviewTab cityData={cityData} historicalData={historicalData} />;
       case 'analytics':
         return <AnalyticsTab historicalData={historicalData} />;
-        case 'map':
+      case 'map':
         return <MapComponent
                   alerts={alerts}
                   citizenRequests={citizenRequests}

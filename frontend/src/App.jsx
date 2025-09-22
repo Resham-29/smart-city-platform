@@ -89,12 +89,26 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  // FIX 1: Add the register function to handle the API call
+  const register = async (userData) => {
+    try {
+      const response = await apiService.register(userData);
+      if (response.success) {
+        return { success: true, message: response.message };
+      }
+      return { success: false, error: 'Registration failed' };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Registration failed' };
+    }
+  };
+
   const logout = () => {
     localStorage.clear();
     setUser(null);
   };
 
-  const value = { user, loading, login, logout, isAuthenticated: !!user };
+  // FIX 2: Add the new 'register' function to the context value
+  const value = { user, loading, login, logout, register, isAuthenticated: !!user };
 
   return (
     <AuthContext.Provider value={value}>
@@ -103,7 +117,7 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// Data Provider Component
+// Data Provider Component (No changes needed here)
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
@@ -148,7 +162,7 @@ const DataProvider = ({ children }) => {
       const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, logout]); // Added logout to dependency array
 
   const updateAlert = async (id, updateData) => {
      try {
@@ -176,7 +190,8 @@ function App() {
 
 // A new component to handle the main logic AFTER authentication is checked
 function Main() {
-  const { user, loading: authLoading, login, logout } = useAuth();
+  // FIX 3: Get the 'register' function from the useAuth hook
+  const { user, loading: authLoading, login, logout, register } = useAuth();
 
   if (authLoading) {
     return (
@@ -188,7 +203,8 @@ function Main() {
 
   // If there's no user, show the login form
   if (!user) {
-    return <AuthComponent onLogin={login} />;
+    // FIX 4: Pass the 'register' function as the 'onRegister' prop
+    return <AuthComponent onLogin={login} onRegister={register} />;
   }
 
   // If there IS a user, wrap the dashboard in the data provider
@@ -220,4 +236,3 @@ function DashboardContent({ onLogout }) {
 }
 
 export default App;
-
