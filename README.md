@@ -194,22 +194,3 @@ smart-city-platform/
 
 <<<<<<< HEAD
 =======
-
-### Step 2: Push the `README.md` to GitHub
-
-Now, you just need to add this file to your repository.
-
-1.  **Open your terminal** in the root `smart-city-platform` directory.
-2.  **Add the new file** to Git's tracking:
-    ```bash
-    git add README.md
-    ```
-3.  **Commit the file** with a message:
-    ```bash
-    git commit -m "docs: Create professional README file"
-    ```
-4.  **Push the commit** to your GitHub repository:
-    ```bash
-    git push
-
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
