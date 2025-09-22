@@ -116,17 +116,6 @@ The project is organized into a standard full-stack structure with separate dire
     ├── main.jsx            # Entry point for the React app
     └── index.css           # Tailwind CSS setup
 
-🤝 Contributing
-Contributions are welcome! If you have suggestions for improvements or want to fix a bug, please feel free to:
 
-Fork the repository.
-
-Create a new branch (git checkout -b feature/AmazingFeature).
-
-Commit your changes (git commit -m 'Add some AmazingFeature').
-
-Push to the branch (git push origin feature/AmazingFeature).
-
-Open a Pull Request.
 
 
