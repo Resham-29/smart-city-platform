@@ -1,196 +1,132 @@
-Smart City Management Platform
-<<<<<<< HEAD
+🏙️ Smart City Management Platform
+A comprehensive, full-stack web application for monitoring and managing urban infrastructure in real-time. This platform provides a centralized dashboard for visualizing data related to traffic, energy, environment, and citizen services, complete with an interactive map and alert system.
 
-A full-stack, real-time dashboard for monitoring and managing urban infrastructure and public services. This platform integrates data from various city systems to provide actionable insights for traffic management, energy optimization, environmental monitoring, and more.
-=======
-A full-stack, real-time dashboard for monitoring and managing urban infrastructure and public services. This platform integrates data from various city systems to provide actionable insights for traffic management, energy optimization, and environmental monitoring.
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
+✨ Key Features
+📊 Real-time Dashboard: A central hub displaying live metrics for key city operations, including traffic congestion, air quality, energy consumption, and water quality.
 
-🌟 Key Features
-Real-time Monitoring: A dynamic, multi-tabbed dashboard displaying live metrics for traffic, air quality, energy consumption, and water management.
+📈 Advanced Data Visualization: Interactive charts and graphs that provide historical trends and current status for all monitored systems (powered by Recharts).
 
-Advanced Analytics: A dedicated analytics tab with detailed charts and historical data trends for deeper insights into city operations.
+🗺️ Interactive Live Map: A live map (powered by Leaflet) that visualizes the real-time locations of system alerts, citizen requests, and waste management statuses.
 
-Professional UI/UX: A clean, organized interface with a sidebar for navigating between different management sections (Overview, Analytics, Alerts, etc.).
+🔔 Alert Management System: A dedicated section for viewing and managing system-generated alerts, categorized by priority (critical, high, medium, low).
 
-<<<<<<< HEAD
-User Authentication & Roles: Secure JWT-based authentication with a professional login/registration page and support for different user roles (Admin, Operator, Citizen, Viewer).
-=======
-User Authentication & Roles: Secure JWT-based authentication with a professional login/registration page and support for different user roles.
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
+👤 User Authentication & Roles: A secure JWT-based authentication system with distinct user roles (Admin, Operator, Citizen, Viewer) and permissions.
 
-Live Alerts System: A real-time panel for viewing and acknowledging active system alerts based on priority.
+** citizen️ Citizen Services Portal:** A module for citizens to submit service requests and for operators to track them.
 
 🛠️ Tech Stack
+This project is a MERN-stack application, built with modern tools for both the frontend and backend.
+
+Area
+
+Technology
+
 Frontend
 
-React.js: A powerful JavaScript library for building user interfaces.
-
-Vite: A lightning-fast frontend build tool.
-
-Tailwind CSS: A utility-first CSS framework for rapid UI development.
-
-Recharts: A composable charting library for data visualization.
-
-<<<<<<< HEAD
-React Leaflet: React components for interactive Leaflet maps.
-
-=======
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
-Axios: A promise-based HTTP client for making API requests.
-
-Lucide React: A beautiful and consistent icon library.
+React (with Vite), Tailwind CSS, Recharts, React-Leaflet
 
 Backend
 
-Node.js: A JavaScript runtime for building the server-side application.
+Node.js, Express, MongoDB (with Mongoose), JWT for Auth
 
-Express.js: A minimal and flexible Node.js web application framework.
+Deployment
 
-<<<<<<< HEAD
-MongoDB: A NoSQL database for storing all application data, connected via Mongoose ODM.
-=======
-MongoDB: A NoSQL database for storing all application data.
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
-
-Mongoose: An Object Data Modeling (ODM) library for MongoDB and Node.js.
-
-JSON Web Tokens (JWT): For securing API endpoints and managing user sessions.
-
-<<<<<<< HEAD
-bcrypt.js: For hashing user passwords before storing them.
+(Ready for services like Vercel, Netlify, Heroku, or any cloud provider)
 
 🚀 Getting Started
-Follow these instructions to get a local copy of the project up and running for development and testing.
-=======
-bcrypt.js: For hashing user passwords.
-
-🚀 Getting Started
-Follow these instructions to get a local copy of the project up and running.
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
 Prerequisites
 
-Node.js (v18 or newer recommended)
+Node.js (v16 or later recommended)
 
-npm (comes with Node.js)
+npm or yarn package manager
 
-Git for version control
+A free MongoDB Atlas account for the database.
 
-Installation & Setup
+1. Backend Setup
 
-Clone the Repository
+First, clone the repository and navigate into the project directory that contains server.js.
 
 git clone [https://github.com/Resham-29/smart-city-platform.git](https://github.com/Resham-29/smart-city-platform.git)
-cd smart-city-platform
+cd smart-city-platform # Or your backend folder
 
-Setup the Backend
-
-<<<<<<< HEAD
-Navigate to the backend directory:
-
-cd backend
-
-Install the dependencies:
+Install dependencies:
 
 npm install
 
-Create a .env file in the backend directory and add the following, replacing the placeholder with your MongoDB connection string:
+Create a .env file in the backend's root directory and add your MongoDB connection string and a JWT secret.
 
-PORT=5001
-MONGODB_URI="mongodb+srv://smartcityuser:iIQnktnaklTGRU7n@cluster0.gdpg8f2.mongodb.net/smartcity?retryWrites=true&w=majority&appName=Cluster0"
-JWT_SECRET=my_super_secret_key_12345R
-=======
-Navigate to the backend directory: cd backend
+# .env
 
-Install dependencies: npm install
+# Your MongoDB connection string from Atlas
+MONGODB_URI="mongodb+srv://<user>:<password>@<cluster-url>/<database-name>?retryWrites=true&w=majority"
 
-Create a .env file and add your configuration:
+# A secure secret for JWT token generation
+JWT_SECRET="your-super-secret-key-for-jwt"
 
-PORT=5001
-MONGODB_URI="your_mongodb_connection_string"
-JWT_SECRET="a_very_secret_key_for_jwt"
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
+# The URL where your frontend is running
 CLIENT_URL="http://localhost:5173"
 
-Setup the Frontend
+Run the server:
 
-<<<<<<< HEAD
-Navigate to the frontend directory from the root:
+npm start
 
-cd frontend
+The backend API will be running on http://localhost:5000.
 
-Install the dependencies:
+2. Frontend Setup
+
+In a new terminal, navigate into your frontend project directory.
+
+Install dependencies:
 
 npm install
 
-Create a .env file in the frontend directory with the following content:
-=======
-Navigate to the frontend directory: cd ../frontend
-
-Install dependencies: npm install
-
-Create a .env file with the following content:
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
-
-VITE_API_BASE_URL="http://localhost:5001/api"
-
-Running the Application
-
-You need to run the backend and frontend servers in two separate terminals.
-
-<<<<<<< HEAD
-Start the Backend Server
-
-In a terminal at the backend directory, run:
-
-npm start
-
-The server should be running at http://localhost:5001.
-
-Start the Frontend Development Server
-
-In a second terminal at the frontend directory, run:
+Run the development server:
 
 npm run dev
 
-The application will be available at http://localhost:5173.
+The frontend application will be available at http://localhost:5173.
 
-Demo Credentials
+🔑 Demo Credentials
 
-You can use the default accounts created by the server on its first run:
+The backend automatically creates two users upon its first launch. You can use these to log in:
 
-=======
-Start the Backend Server (from the /backend folder)
+Administrator:
 
-npm start
+Username: admin
 
-Start the Frontend Server (from the /frontend folder)
+Password: admin123
 
-npm run dev
+Viewer:
 
-Demo Credentials
+Username: demo
 
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
-Username: demo / Password: demo123 (Role: Viewer)
+Password: demo123
 
-Username: admin / Password: admin123 (Role: Admin)
+📁 Project Structure
+The project is organized into a standard full-stack structure with separate directories for frontend and backend logic.
 
-📂 Project Structure
-smart-city-platform/
-├── backend/
-│   └── server.js
-└── frontend/
-    └── src/
-        ├── components/
-        │   ├── AuthComponent.jsx
-<<<<<<< HEAD
-        │   ├── CityMap.jsx
-=======
->>>>>>> d879458 (feat: Overhaul UI with new dashboard, tabs, and enhanced charts)
-        │   ├── Dashboard.jsx
-        │   └── enhancedCharts.jsx
-        └── App.jsx
+/smart-city-platform
+├── server.js               # Main backend server file
+├── package.json            # Backend dependencies
+└── /src                    # Frontend application source
+    ├── /components         # React components (Dashboard, Auth, Map, etc.)
+    ├── App.jsx             # Main application component with routing/context
+    ├── main.jsx            # Entry point for the React app
+    └── index.css           # Tailwind CSS setup
 
-<<<<<<< HEAD
-=======
+🤝 Contributing
+Contributions are welcome! If you have suggestions for improvements or want to fix a bug, please feel free to:
+
+Fork the repository.
+
+Create a new branch (git checkout -b feature/AmazingFeature).
+
+Commit your changes (git commit -m 'Add some AmazingFeature').
+
+Push to the branch (git push origin feature/AmazingFeature).
+
+Open a Pull Request.
+
+
